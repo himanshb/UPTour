@@ -37,6 +37,13 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
 
 
     protected GeoDataClient mGeoDataClient;
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +87,8 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (view==placeButton){
-            Intent intent=new Intent(this,Googlectivity.class);
+            Intent intent=new Intent(this,CityPlacesActivity.class);
+            //Intent intent=new Intent(this,Googlectivity.class);
             intent.putExtra("city_id",cityID);
             intent.putExtra("place_type","place");
             intent.putExtra("city_name",cityName);
@@ -95,7 +103,8 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }
         if (view==foodButton){
-            Intent intent=new Intent(this,Googlectivity.class);
+            Intent intent=new Intent(this,CityFoodActivity.class);
+            //Intent intent=new Intent(this,Googlectivity.class);
             intent.putExtra("city_id",cityID);
             intent.putExtra("place_type","food");
             intent.putExtra("city_name",cityName);

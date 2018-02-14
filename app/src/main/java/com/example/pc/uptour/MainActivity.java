@@ -110,6 +110,7 @@ public class MainActivity extends AppCompatActivity
                             myDatabase.insertInCities(place.getId(),place.getName().toString());
                             String cityPlaceID=place.getId();
                             Intent intent=new Intent(this,CityActivity.class);
+                            intent.putExtra("city_name",place.getName());
                             intent.putExtra("city_id",cityID);
                             intent.putExtra("city_place_id",cityPlaceID);
                             startActivity(intent);
@@ -140,7 +141,29 @@ public class MainActivity extends AppCompatActivity
                                 Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
                         }
                         break;
-                    case "":
+                    case "food":
+                        address=place.getAddress().toString();
+                        String foodCityID=myDatabase.checkSubString(address);
+                        if (foodCityID!=null){
+                            boolean check=myDatabase.insertFood(place.getId(),place.getName().toString(),foodCityID);
+                            if (check){
+                                Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
+                            }
+                            else
+                                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    case "place":
+                        address=place.getAddress().toString();
+                        String placeCityID=myDatabase.checkSubString(address);
+                        if (placeCityID!=null){
+                            boolean check=myDatabase.insertPlace(place.getId(),place.getName().toString(),placeCityID);
+                            if (check){
+                                Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
+                            }
+                            else
+                                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+                        }
                         break;
                 }
                 //getDetailsByPlaceID(place.getId());
@@ -163,6 +186,12 @@ public class MainActivity extends AppCompatActivity
             }
             if (placeTypes.get(i)==Place.TYPE_LOCALITY){
                 return "city";
+            }
+            if (placeTypes.get(i)==Place.TYPE_RESTAURANT||placeTypes.get(i)==Place.TYPE_FOOD){
+                return "food";
+            }
+            if (placeTypes.get(i)==Place.TYPE_PLACE_OF_WORSHIP||placeTypes.get(i)==Place.TYPE_POINT_OF_INTEREST){
+                return "place";
             }
         }
         return "";
@@ -231,6 +260,7 @@ public class MainActivity extends AppCompatActivity
         String cityID=city.getCityID();
         String cityPlaceID=city.getCityPlaceID();
         Intent intent=new Intent(this,CityActivity.class);
+        intent.putExtra("city_name",city.getCityName());
         intent.putExtra("city_id",cityID);
         intent.putExtra("city_place_id",cityPlaceID);
         startActivity(intent);

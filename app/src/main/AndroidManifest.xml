@@ -27,11 +27,15 @@
         <activity
             android:name=".CityActivity"
             android:label="@string/title_activity_city"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar2" />
         <activity
-            android:name=".City2Activity"
+            android:name=".CityHotelsActivity"
             android:label="@string/title_activity_city2"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar2" />
+        <activity android:name=".EntityDetailActivity" />
+        <activity android:name=".Googlectivity" />
+        <activity android:name=".CityPlacesActivity" />
+        <activity android:name=".CityFoodActivity"></activity>
     </application>
 
 </manifest>

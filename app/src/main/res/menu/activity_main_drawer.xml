@@ -5,33 +5,41 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_location"
+            android:icon="@drawable/location"
+            android:title="My Place" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="Around Me">
+        <menu>
+            <item
+                android:id="@+id/nav_nearby"
+                android:icon="@drawable/nearby_location"
+                android:title="Around Me" />
+            <item
+                android:id="@+id/nav_places"
+                android:icon="@drawable/nearby_location"
+                android:title="Point of interest" />
+            <item
+                android:id="@+id/nav_hotels"
+                android:icon="@drawable/nearby_location"
+                android:title="Hotels" />
+        </menu>
+    </item>
+
+    <item android:title="User">
+        <menu>
+            <item
+                android:id="@+id/nav_sign_out"
+                android:title="Sign out" />
+        </menu>
+    </item>
+    <item android:title="Developer">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:icon="@drawable/about_us"
+                android:title="About us" />
         </menu>
     </item>
 

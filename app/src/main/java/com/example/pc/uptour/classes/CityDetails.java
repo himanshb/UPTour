@@ -1,4 +1,4 @@
-package com.example.pc.uptour;
+package com.example.pc.uptour.classes;
 
 /**
  * Created by PC on 1/19/2018.

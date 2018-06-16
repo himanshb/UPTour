@@ -1,9 +1,14 @@
-package com.example.pc.uptour;
+package com.example.pc.uptour.database;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.pc.uptour.classes.CityDetails;
+import com.example.pc.uptour.classes.FoodDetails;
+import com.example.pc.uptour.classes.HotelDetails;
+import com.example.pc.uptour.classes.PlaceDetails;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -47,26 +52,32 @@ public class DatabaseAccess  {
 
     //check name present in database
     public  String checkCityNameForInsert(String name){
-        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT * from cities WHERE city_name='"+name +"'",null);
+        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT city_id,city_name,city_place_id from cities WHERE city_name='"+name +"'",null);
         if( cursor != null && cursor.moveToFirst() ){
             if (cursor.getString(cursor.getColumnIndex("city_name")).equals(name)&&
                     cursor.getString(cursor.getColumnIndex("city_place_id"))==null) {
-                return cursor.getString(0);
+                String id=cursor.getString(0);
+                cursor.close();
+                return id;
             }
             else if (cursor.getString(cursor.getColumnIndex("city_name")).equals(name)&&
                     cursor.getString(cursor.getColumnIndex("city_place_id"))!=null){
-                return "false";
+                String id=cursor.getString(0);
+                cursor.close();
+                return id;
             }
         }
         return null;
     }
     //check name present in database
     public  String checkCityName(String name){
-        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT * from cities WHERE city_name='"+name +"'",null);
+        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT city_id,city_name,city_place_id from cities WHERE city_name='"+name +"'",null);
         if( cursor != null && cursor.moveToFirst() ){
             if (cursor.getString(cursor.getColumnIndex("city_name")).equals(name)&&
                     cursor.getString(cursor.getColumnIndex("city_place_id"))!=null) {
-                return cursor.getString(0);
+                String id=cursor.getString(0);
+                cursor.close();
+                return id;
             }
         }
         return null;
@@ -74,11 +85,17 @@ public class DatabaseAccess  {
 
     //match the address with city
     public String checkSubString(String address){
-        Cursor cursor=mSqLiteDatabase.rawQuery("select city_id,city_name from cities",null);
+        Cursor cursor=mSqLiteDatabase.rawQuery("select city_id,city_name,city_pin from cities",null);
         while (cursor.moveToNext()){
-            String city=cursor.getString(cursor.getColumnIndex("city_name"));
-            if (address.contains(city)){
-               return cursor.getString(cursor.getColumnIndex("city_id"));
+            String pin=Integer.toString(cursor.getInt(2));
+            if (address.contains(pin)) {
+                return cursor.getString(cursor.getColumnIndex("city_id"));
+            }
+            else {
+                String city = cursor.getString(cursor.getColumnIndex("city_name"));
+                if (address.contains(city + ", Uttar Pradesh")) {
+                    return cursor.getString(cursor.getColumnIndex("city_id"));
+                }
             }
         }
         cursor.close();
@@ -121,13 +138,16 @@ public class DatabaseAccess  {
             return insertInJunction(returnID,cityID);
         }
     }
+
+
     //check weather food is present or not in db.
     private long getCount(String text) {
-        Cursor c = null;
         String query = "select food_id from food where food_name = ?";
-        c = mSqLiteDatabase.rawQuery(query, new String[] {text});
+        Cursor c=mSqLiteDatabase.rawQuery(query, new String[] {text});
         if (c!=null&&c.moveToFirst()) {
-            return c.getLong(c.getColumnIndex("food_id"));
+            long id=c.getLong(c.getColumnIndex("food_id"));
+            c.close();
+            return id;
         }
         return 0;
     }
@@ -142,8 +162,8 @@ public class DatabaseAccess  {
     }
 
 
-    protected List<HotelDetails> getHotels(String cityID){
-        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT * from hotels WHERE hotels.city_id='"+cityID +"'",null);
+    public List<HotelDetails> getHotels(String cityID){
+        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT * from hotels WHERE hotels.city_id='"+cityID +"'order by hotel_name",null);
         List<HotelDetails> hotelList=new LinkedList<>();
         while (cursor.moveToNext()){
             String hotelPlaceID=cursor.getString(cursor.getColumnIndex("hotel_place_id"));
@@ -158,14 +178,14 @@ public class DatabaseAccess  {
         return hotelList;
     }
 
-    protected List<FoodDetails> getFood(String cityID){
+    public List<FoodDetails> getFood(String cityID){
         String query="SELECT food.*, cities.city_id\n" +
                 "FROM cities\n" +
                 "INNER JOIN jun_city_food\n" +
                 "ON cities.city_id = jun_city_food.city_id\n" +
                 "INNER JOIN food\n" +
                 "ON food.food_id = jun_city_food.food_id\n" +
-                "WHERE jun_city_food.city_id = '"+cityID +"'";
+                "WHERE jun_city_food.city_id = '"+cityID +"'order by food_name";
         Cursor cursor=mSqLiteDatabase.rawQuery(query,null);
         List<FoodDetails> foodList=new LinkedList<>();
         while (cursor.moveToNext()){
@@ -181,8 +201,8 @@ public class DatabaseAccess  {
         return foodList;
     }
 
-    protected List<PlaceDetails> getPlaces(String cityID){
-        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT * from places WHERE places.city_id='"+cityID +"'",null);
+    public List<PlaceDetails> getPlaces(String cityID){
+        Cursor cursor=mSqLiteDatabase.rawQuery("SELECT * from places WHERE places.city_id='"+cityID +"'order by place_name",null);
         List<PlaceDetails> placeList=new LinkedList<>();
         while (cursor.moveToNext()){
             String placePlaceID=cursor.getString(cursor.getColumnIndex("place_place_id"));
@@ -197,9 +217,9 @@ public class DatabaseAccess  {
         return placeList;
     }
 
-    protected List<CityDetails> getCities(){
+    public List<CityDetails> getCities(){
         List<CityDetails> cityList=new ArrayList<>();
-        Cursor cursor=mSqLiteDatabase.rawQuery("select * from cities",null);
+        Cursor cursor=mSqLiteDatabase.rawQuery("select * from cities order by city_name",null);
         while (cursor.moveToNext()){
             int cityID=cursor.getInt(cursor.getColumnIndex("city_id"));
             String cityName=cursor.getString(cursor.getColumnIndex("city_name"));
@@ -209,5 +229,47 @@ public class DatabaseAccess  {
         }
         cursor.close();
         return cityList;
+    }
+    public List<CityDetails> getCitiesByTags(String tag){
+        List<CityDetails> cityList=new ArrayList<>();
+        Cursor cursor=mSqLiteDatabase.rawQuery("select * from cities where city_tag LIKE '%"+tag +"%'order by city_name ",null);
+        while (cursor.moveToNext()){
+            int cityID=cursor.getInt(cursor.getColumnIndex("city_id"));
+            String cityName=cursor.getString(cursor.getColumnIndex("city_name"));
+            String cityPlaceID=cursor.getString(cursor.getColumnIndex("city_place_id"));
+            CityDetails city=new CityDetails(Integer.toString(cityID),cityName,cityPlaceID);
+            cityList.add(city);
+        }
+        cursor.close();
+        return cityList;
+    }
+
+    public String getCityDescription(String cityID){
+        Cursor cursor=mSqLiteDatabase.rawQuery("select city_description from cities where city_id='"+cityID+"'",null);
+        if (cursor!=null&&cursor.moveToFirst()) {
+            String description = cursor.getString(cursor.getColumnIndex("city_description"));
+            cursor.close();
+            return description;
+        }
+        return "";
+    }
+
+    public String getCityPlaceID(String cityID){
+        Cursor cursor=mSqLiteDatabase.rawQuery("select city_place_id from cities where city_id='"+cityID+"'",null);
+        if (cursor!=null&&cursor.moveToFirst()) {
+            String place_id = cursor.getString(cursor.getColumnIndex("city_place_id"));
+            cursor.close();
+            return place_id;
+        }
+        return "";
+    }
+    public String getCityName(String cityID){
+        Cursor cursor=mSqLiteDatabase.rawQuery("select city_name from cities where city_id='"+cityID+"'",null);
+        if (cursor!=null&&cursor.moveToFirst()) {
+            String cityName = cursor.getString(cursor.getColumnIndex("city_name"));
+            cursor.close();
+            return cityName;
+        }
+        return "";
     }
 }

@@ -5,15 +5,25 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DialogTitle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.pc.uptour.database.DatabaseAccess;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -33,7 +43,13 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
     ImageView img;
     String cityID,cityPlaceID;
     String cityName;
-    FloatingActionButton infoButton;
+    //FloatingActionButton infoButton;
+    CardView infoButton;
+    AlertDialog.Builder dialogMsg;
+    DatabaseAccess myDatabase;
+
+    TextView cityNameTV;
+    TextView cityDescription;
 
 
     protected GeoDataClient mGeoDataClient;
@@ -48,11 +64,13 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(this,null);
+
+
 
         placeButton=findViewById(R.id.button);
         placeButton.setOnClickListener(this);
@@ -60,8 +78,10 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
         hotelButton.setOnClickListener(this);
         foodButton=findViewById(R.id.button3);
         foodButton.setOnClickListener(this);
+       // itemButton=findViewById(R.id.infoButton);
+      //  itemButton.setOnClickListener(this);
         img=findViewById(R.id.imageView2);
-        infoButton=findViewById(R.id.infoButton);
+       // infoButton=findViewById(R.id.infoButton);
 
         cityName=this.getIntent().getExtras().getString("city_name");
         cityID=this.getIntent().getStringExtra("city_id");
@@ -73,15 +93,42 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setTitle(cityName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //for setting Description
 
-        Toast.makeText(this, cityID+" "+cityPlaceID, Toast.LENGTH_SHORT).show();
+        cityNameTV=findViewById(R.id.cityName);
+        cityDescription=findViewById(R.id.cityDescription);
 
-        infoButton.setOnClickListener(new View.OnClickListener() {
+        cityNameTV.setText(cityName);
+        cityDescription.setText(getDescription(cityID));
+
+
+        //Toast.makeText(this, cityID+" "+cityPlaceID, Toast.LENGTH_SHORT).show();
+
+      /*  infoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(CityActivity.this, "City Description to be opened from here", Toast.LENGTH_SHORT).show();
+
             }
         });
+   */ }
+
+
+
+    private String getDescription(String cityID) {
+        dialogMsg=new AlertDialog.Builder(this);
+        myDatabase=new DatabaseAccess(this);
+        myDatabase.open();
+        String description=myDatabase.getCityDescription(cityID);
+        myDatabase.close();
+        if (!description.equals("")) {
+           /* dialogMsg.setTitle(myDatabase.getCityName(cityID));
+            dialogMsg.setMessage(description);
+            dialogMsg.setPositiveButton("Okay",null);
+            dialogMsg.show();*/
+           return description;
+        }else
+            return "Not Available";
+
     }
 
     @Override
@@ -110,6 +157,9 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
             intent.putExtra("city_name",cityName);
             startActivity(intent);
         }
+        if (view==itemButton){
+            getDescription(cityID);
+        }
     }
 
     @Override
@@ -117,7 +167,7 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(this, "Connection Failed", Toast.LENGTH_SHORT).show();
     }
 
-    protected void getPlaceDetails(String placeID){
+    /*protected void getPlaceDetails(String placeID){
         mGeoDataClient.getPlaceById(placeID).addOnCompleteListener(new OnCompleteListener<PlaceBufferResponse>() {
             @Override
             public void onComplete(@NonNull Task<PlaceBufferResponse> task) {
@@ -130,7 +180,7 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
-    }
+    }*/
     // Request photos and metadata for the specified place.
     private void getPhotos(String placeId) {
         //final String placeId = "ChIJa147K9HX3IAR-lwiGIQv9i4";
@@ -143,22 +193,32 @@ public class CityActivity extends AppCompatActivity implements View.OnClickListe
                 // Get the PlacePhotoMetadataBuffer (metadata for all of the photos).
                 PlacePhotoMetadataBuffer photoMetadataBuffer = photos.getPhotoMetadata();
                 // Get the first photo in the list.
-                PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
-                // Get the attribution text.
-                CharSequence attribution = photoMetadata.getAttributions();
-                // Get a full-size bitmap for the photo.
-                Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
-                photoResponse.addOnCompleteListener(new OnCompleteListener<PlacePhotoResponse>() {
-                    @Override
-                    public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
-                        PlacePhotoResponse photo = task.getResult();
-                        if (photo!=null) {
-                            Bitmap bitmap = photo.getBitmap();
-                            img.setImageBitmap(bitmap);
+                try {
+                    PlacePhotoMetadata photoMetadata = photoMetadataBuffer.get(0);
+                    // Get the attribution text.
+                    //CharSequence attribution = photoMetadata.getAttributions();
+                    // Get a full-size bitmap for the photo.
+                    Task<PlacePhotoResponse> photoResponse = mGeoDataClient.getPhoto(photoMetadata);
+                    photoResponse.addOnCompleteListener(CityActivity.this, new OnCompleteListener<PlacePhotoResponse>() {
+                        @Override
+                        public void onComplete(@NonNull Task<PlacePhotoResponse> task) {
+                            PlacePhotoResponse photo = task.getResult();
+                            img.setImageBitmap(photo.getBitmap());
                         }
-                    }
-                });
+                    });
+                    photoMetadataBuffer.release();
+                }catch (IllegalStateException e){
+                    e.printStackTrace();
+                }
             }
         });
     }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (myDatabase!=null){
+            myDatabase.close();
+        }
+    }
+
 }

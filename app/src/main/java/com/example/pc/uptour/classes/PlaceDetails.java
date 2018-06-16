@@ -1,14 +1,17 @@
-package com.example.pc.uptour;
+package com.example.pc.uptour.classes;
+
+import android.graphics.Bitmap;
 
 /**
  * Created by PC on 2/14/2018.
  */
 
 public class PlaceDetails {
-    private String cityID;
+
     private String placeID;
     private String placePlaceID;
     private String placeName;
+    private Bitmap placeImg;
 
     public PlaceDetails(String placeName,String placeID,String placePlaceID) {
         this.placeID=placeID;
@@ -16,8 +19,12 @@ public class PlaceDetails {
         this.placePlaceID=placePlaceID;
     }
 
-    public String getCityID() {
-        return cityID;
+    public Bitmap getPlaceImg() {
+        return placeImg;
+    }
+
+    public void setPlaceImg(Bitmap placeImg) {
+        this.placeImg = placeImg;
     }
 
     public String getPlaceID() {

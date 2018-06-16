@@ -1,10 +1,17 @@
 <resources>
-    <string name="app_name">UPTour</string>
+    <string name="app_name">UP Tourism</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
     <string name="title_activity_city">CityActivity</string>
-    <string name="title_activity_city2">City2Activity</string>
+    <string name="title_activity_city2">Hotels</string>
+
+    <!--Added by Apoorv
+       Added Splash and merged the project here-->
+    <string name="facebook_app_id">103337883772545</string>
+    <string name="fb_login_protocol_scheme">fb103337883772545</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <!--till here-->
+    <string name="search">Search</string>
 </resources>
